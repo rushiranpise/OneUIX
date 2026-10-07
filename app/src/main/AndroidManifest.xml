@@ -89,6 +89,16 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
+        <service
+            android:name=".SoftRebootTileService"
+            android:exported="true"
+            android:icon="@drawable/soft_reboot"
+            android:label="@string/softRebootQsTile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
         <activity
             android:name=".OutdoorTilePreferencesActivity"
             android:exported="true"
