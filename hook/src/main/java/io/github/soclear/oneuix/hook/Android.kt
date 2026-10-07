@@ -41,6 +41,57 @@ object Android {
         }
     }
 
+    private const val OUTDOOR_MODE = "display_outdoor_mode"
+    private const val CONTENT_PROVIDER_CLASS = "android.content.ContentProvider"
+    private const val SETTINGS_PROVIDER_CLASS = "com.android.providers.settings.SettingsProvider"
+    private const val ENFORCE_MUTATION_METHOD =
+        "enforceRestrictedSystemSettingsMutationForCallingPackage"
+
+    /**
+     * Lets the app write "display_outdoor_mode" itself, so the Outdoor mode tile needs no root.
+     *
+     * The provider refuses a system setting that is not in its PUBLIC_SETTINGS list when the caller
+     * only holds the WRITE_SETTINGS app op. This lifts that check for this one key only; every other
+     * setting keeps the normal restriction.
+     */
+    context(xposedModule: XposedModule, param: XposedModuleInterface.SystemServerStartingParam)
+    fun allowOutdoorModeWriteFromApp() {
+        try {
+            // The provider lives in its own APK and is loaded by its own classloader, so looking it up
+            // by name from system_server throws ClassNotFoundException. Take the class from the first
+            // provider instance that gets constructed instead.
+            val contentProviderClass = param.classLoader.loadClass(CONTENT_PROVIDER_CLASS)
+            contentProviderClass.declaredConstructors.forEach { constructor ->
+                xposedModule.hook(constructor).intercept { chain ->
+                    val result = chain.proceed()
+                    val provider = chain.thisObject
+                    if (provider?.javaClass?.name == SETTINGS_PROVIDER_CLASS) {
+                        hookProviderEnforcement(provider.javaClass)
+                    }
+                    result
+                }
+            }
+        } catch (t: Throwable) {
+            xlog(t)
+        }
+    }
+
+    context(xposedModule: XposedModule)
+    private fun hookProviderEnforcement(providerClass: Class<*>) {
+        try {
+            val method = providerClass.declaredMethods.firstOrNull {
+                it.name == ENFORCE_MUTATION_METHOD
+            } ?: return
+
+            xposedModule.hook(method).intercept { chain ->
+                // (int operation, String name, int userId)
+                if (chain.args.getOrNull(1) == OUTDOOR_MODE) null else chain.proceed()
+            }
+        } catch (t: Throwable) {
+            xlog(t)
+        }
+    }
+
     @SuppressLint("BlockedPrivateApi")
     context(xposedModule: XposedModule)
     fun setBlockableNotificationChannel() {

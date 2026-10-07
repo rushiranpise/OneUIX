@@ -498,5 +498,10 @@ class Main : XposedModule() {
         if (preference.android.disableScreenWakeOnPowerUnplugged) {
             Android.disableScreenWakeOnPowerUnplugged()
         }
+
+        // Lets the Outdoor mode tile write the setting from the app without root.
+        if (preference.settings.supportOutdoorMode) {
+            Android.allowOutdoorModeWriteFromApp()
+        }
     }
 }

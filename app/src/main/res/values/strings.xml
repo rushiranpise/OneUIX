@@ -32,6 +32,9 @@
     <string name="immersiveModeQsTile_label">Immersive mode</string>
     <string name="immersiveModeQsTile_title">Enable Immersive mode Quick Settings tile</string>
     <string name="rootImmersiveModeQsTile_summary">Requires root access. Add the tile manually; tap it to hide or restore the status bar</string>
+    <string name="outdoorModeQsTile_label">Outdoor mode</string>
+    <string name="outdoorModeQsTile_title">Enable Outdoor mode Quick Settings tile</string>
+    <string name="rootOutdoorModeQsTile_summary">Grant \u201cModify system settings\u201d or root access. Add the tile manually; tap it to turn Outdoor mode on or off</string>
     <string name="setStatusBarClockFormat_title">Set status bar date and time format</string>
     <string name="setStatusBarClockTextScale_title">Set status bar clock scale factor</string>
     <string name="updateStatusBarClockEverySecond_title">Update status bar clock every second</string>
