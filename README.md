@@ -68,6 +68,8 @@
 - 隐藏快捷设置的 Smart View
 - 开启快捷设置 5G 磁贴
 - 开启沉浸模式快捷设置磁贴
+- 户外模式快捷设置磁贴
+- 软重启快捷设置磁贴
 - 隐藏快捷设置面板的媒体播放器 Bar
 - 隐藏快捷设置面板的附近设备和设备控制 Bar
 - 隐藏快捷设置面板的安全底部提示 Bar
@@ -88,7 +90,7 @@
 
 ##### 其他
 
-- 自定义关机菜单按钮
+- 自定义关机菜单按钮（包括软重启）
 - 禁用截图声音
 - 隐藏音乐应用的实时活动
 - 允许所有旋转角度
@@ -212,6 +214,8 @@
 - Hide Smart View in Quick Settings
 - Enable 5G Quick Settings tile
 - Enable Immersive mode Quick Settings tile
+- Outdoor mode Quick Settings tile
+- Soft reboot Quick Settings tile
 - Hide Media Player bar in QS panel
 - Hide Nearby Devices and Device Control bar in QS panel
 - Hide Security footer bar in QS panel
@@ -232,7 +236,7 @@
 
 ##### Other
 
-- Customize power menu actions
+- Customize power menu actions (including a soft reboot)
 - Disable screenshot sound
 - Hide ongoing activity for media apps
 - Allow all rotation angles
