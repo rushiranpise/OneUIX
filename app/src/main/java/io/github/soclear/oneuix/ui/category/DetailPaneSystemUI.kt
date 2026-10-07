@@ -984,6 +984,7 @@ private fun powerMenuActionTitle(actionName: String): Int = when (actionName) {
     PowerMenuAction.RESTART_SYSTEMUI -> CommonR.string.restartSystemUI
     PowerMenuAction.RESTART_RECOVERY -> CommonR.string.restartRecovery
     PowerMenuAction.RESTART_DOWNLOAD -> CommonR.string.restartDownload
+    PowerMenuAction.SOFT_REBOOT -> CommonR.string.softReboot
     else -> R.string.other
 }
 
