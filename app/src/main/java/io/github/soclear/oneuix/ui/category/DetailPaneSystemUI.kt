@@ -36,6 +36,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import io.github.soclear.oneuix.R
+import io.github.soclear.oneuix.common.NetworkSpeedLayout
+import io.github.soclear.oneuix.common.NetworkSpeedMarker
+import io.github.soclear.oneuix.common.NetworkSpeedUnit
 import io.github.soclear.oneuix.common.ONE_UI_VERSION
 import io.github.soclear.oneuix.common.PowerMenuAction
 import io.github.soclear.oneuix.common.Preference
@@ -48,6 +51,11 @@ import kotlin.math.roundToInt
 import io.github.soclear.oneuix.common.R as CommonR
 
 private const val ESIM_ADAPTER_SIM_BOTH = 2
+
+private val NETWORK_SPEED_TEXT_SIZE_RANGE = 0f..24f
+private val NETWORK_SPEED_MARKER_SIZE_RANGE = 0f..32f
+private val NETWORK_SPEED_MARKER_GAP_RANGE = 0f..3f
+private val NETWORK_SPEED_LINE_SPACING_RANGE = 0f..16f
 
 @Composable
 fun DetailPaneSystemUI(
@@ -278,37 +286,140 @@ fun DetailPaneSystemUI(
                 onEvent(SystemUIEvent.StatusBar.SupportRealTimeNetworkSpeed(it))
             }
         )
-        SwitchItem(
+        SelectItem(
             icon = ImageVector.vectorResource(id = R.drawable.net_speed),
-            title = stringResource(id = R.string.showSeparateUpDownNetworkSpeeds_title),
-            summary = stringResource(id = R.string.showSeparateUpDownNetworkSpeeds_summary),
-            checked = uiState.statusBar.showSeparateUpDownNetworkSpeeds,
-            onCheckedChange = {
-                onEvent(SystemUIEvent.StatusBar.ShowSeparateUpDownNetworkSpeeds(it))
+            title = stringResource(id = R.string.networkSpeedLayout_title),
+            entries = listOf(
+                stringResource(id = R.string.networkSpeedLayout_systemDefault),
+                stringResource(id = R.string.networkSpeedLayout_splitHorizontal),
+                stringResource(id = R.string.networkSpeedLayout_splitVertical),
+                stringResource(id = R.string.networkSpeedLayout_activeDirection)
+            ),
+            selectedIndex = NetworkSpeedLayout.coerce(uiState.statusBar.networkSpeedLayout),
+            onSelectedIndexChange = {
+                onEvent(SystemUIEvent.StatusBar.SetNetworkSpeedLayout(it))
             }
         )
+        SwitchItem(
+            icon = ImageVector.vectorResource(id = R.drawable.net_speed),
+            title = stringResource(id = R.string.showNetworkSpeedArrows_title),
+            summary = stringResource(id = R.string.showNetworkSpeedArrows_summary),
+            checked = uiState.statusBar.showNetworkSpeedArrows,
+            onCheckedChange = {
+                onEvent(SystemUIEvent.StatusBar.ShowNetworkSpeedArrows(it))
+            }
+        )
+        SelectItem(
+            icon = ImageVector.vectorResource(id = R.drawable.net_speed),
+            title = stringResource(id = R.string.networkSpeedMarker_title),
+            entries = listOf(
+                stringResource(id = R.string.networkSpeedMarker_thinArrows),
+                stringResource(id = R.string.networkSpeedMarker_solidTriangles),
+                stringResource(id = R.string.networkSpeedMarker_outlineTriangles),
+                stringResource(id = R.string.networkSpeedMarker_blockArrows),
+                stringResource(id = R.string.networkSpeedMarker_dashedArrows),
+                stringResource(id = R.string.networkSpeedMarker_arrowheads),
+                stringResource(id = R.string.networkSpeedMarker_single),
+                stringResource(id = R.string.networkSpeedMarker_ascii),
+                stringResource(id = R.string.networkSpeedMarker_emoji)
+            ),
+            selectedIndex = NetworkSpeedMarker.coerce(uiState.statusBar.networkSpeedMarker),
+            onSelectedIndexChange = {
+                onEvent(SystemUIEvent.StatusBar.SetNetworkSpeedMarker(it))
+            }
+        )
+        // Applies everywhere, including the system default, whose own numbers are rewritten when
+        // the chosen unit is not the one SystemUI writes.
+        SelectItem(
+            icon = ImageVector.vectorResource(id = R.drawable.net_speed),
+            title = stringResource(id = R.string.networkSpeedUnit_title),
+            entries = listOf(
+                stringResource(id = R.string.networkSpeedUnit_bytesBinary),
+                stringResource(id = R.string.networkSpeedUnit_bytesDecimal),
+                stringResource(id = R.string.networkSpeedUnit_bitsDecimal),
+                stringResource(id = R.string.networkSpeedUnit_bitsBinary)
+            ),
+            selectedIndex = NetworkSpeedUnit.coerce(uiState.statusBar.networkSpeedUnit),
+            onSelectedIndexChange = {
+                onEvent(SystemUIEvent.StatusBar.SetNetworkSpeedUnit(it))
+            }
+        )
+        val systemSizeLabel = stringResource(id = R.string.networkSpeedSize_system)
+        val sameAsTextLabel = stringResource(id = R.string.networkSpeedSize_sameAsText)
+        // The system default keeps SystemUI's own font and line height, so these two only apply
+        // to the split layouts.
+        AnimatedVisibility(
+            uiState.statusBar.networkSpeedLayout != NetworkSpeedLayout.SYSTEM_DEFAULT
+        ) {
+            SliderSetting(
+                title = stringResource(id = R.string.networkSpeedTextSize_title),
+                value = uiState.statusBar.networkSpeedTextSizeSp,
+                valueRange = NETWORK_SPEED_TEXT_SIZE_RANGE,
+                steps = 23,
+                display = { if (it <= 0f) systemSizeLabel else "%.0f sp".format(it) },
+                onCommit = {
+                    onEvent(SystemUIEvent.StatusBar.NetworkSpeedTextSizeSp(it))
+                }
+            )
+        }
+        SliderSetting(
+            title = stringResource(id = R.string.networkSpeedMarkerSize_title),
+            value = uiState.statusBar.networkSpeedMarkerSizeSp,
+            valueRange = NETWORK_SPEED_MARKER_SIZE_RANGE,
+            steps = 31,
+            display = { if (it <= 0f) sameAsTextLabel else "%.0f sp".format(it) },
+            onCommit = {
+                onEvent(SystemUIEvent.StatusBar.NetworkSpeedMarkerSizeSp(it))
+            }
+        )
+        SliderSetting(
+            title = stringResource(id = R.string.networkSpeedMarkerGap_title),
+            value = uiState.statusBar.networkSpeedMarkerGap,
+            valueRange = NETWORK_SPEED_MARKER_GAP_RANGE,
+            steps = 29,
+            display = { "%.2fx".format(it) },
+            onCommit = {
+                onEvent(SystemUIEvent.StatusBar.NetworkSpeedMarkerGap(it))
+            }
+        )
+        AnimatedVisibility(
+            uiState.statusBar.networkSpeedLayout != NetworkSpeedLayout.SYSTEM_DEFAULT
+        ) {
+            SliderSetting(
+                title = stringResource(id = R.string.networkSpeedLineSpacing_title),
+                value = uiState.statusBar.networkSpeedLineSpacingDp,
+                valueRange = NETWORK_SPEED_LINE_SPACING_RANGE,
+                steps = 15,
+                display = { if (it <= 0f) systemSizeLabel else "%.0f dp".format(it) },
+                onCommit = {
+                    onEvent(SystemUIEvent.StatusBar.NetworkSpeedLineSpacingDp(it))
+                }
+            )
+        }
+        // The threshold is written in the same unit as the readout, so the two agree.
+        val speedUnitPrefix = NetworkSpeedUnit.of(uiState.statusBar.networkSpeedUnit).kiloPrefix
         Column {
             var expanded by rememberSaveable { mutableStateOf(false) }
             var threshold by remember {
-                mutableIntStateOf(uiState.statusBar.networkSpeedThresholdKb)
+                mutableIntStateOf(uiState.statusBar.networkSpeedThreshold)
             }
             SwitchItem(
                 icon = ImageVector.vectorResource(id = R.drawable.net_speed),
                 title = stringResource(id = R.string.networkSpeedThreshold_title),
-                summary = if (uiState.statusBar.networkSpeedThresholdKb > 0) {
-                    "${uiState.statusBar.networkSpeedThresholdKb} KB/s"
+                summary = if (uiState.statusBar.networkSpeedThreshold > 0) {
+                    "${uiState.statusBar.networkSpeedThreshold} $speedUnitPrefix/s"
                 } else null,
                 modifier = Modifier.animateContentSize(),
                 clickable = true,
                 onClick = { expanded = !expanded },
-                checked = uiState.statusBar.networkSpeedThresholdKb > 0,
+                checked = uiState.statusBar.networkSpeedThreshold > 0,
                 onCheckedChange = {
                     if (it && threshold == 0) threshold = 1
                     if (!it) threshold = 0
                     onEvent(SystemUIEvent.StatusBar.NetworkSpeedThreshold(threshold))
                 }
             )
-            AnimatedVisibility(expanded && uiState.statusBar.networkSpeedThresholdKb > 0) {
+            AnimatedVisibility(expanded && uiState.statusBar.networkSpeedThreshold > 0) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -317,7 +428,9 @@ fun DetailPaneSystemUI(
                         value = threshold.toString(),
                         onValueChange = { threshold = it.toIntOrNull()?.coerceAtLeast(1) ?: 1 },
                         modifier = Modifier.weight(1f),
-                        label = { Text(stringResource(id = R.string.networkSpeedThreshold_label)) }
+                        label = {
+                            Text(stringResource(id = R.string.networkSpeedThreshold_label, speedUnitPrefix))
+                        }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
@@ -897,6 +1010,32 @@ fun DetailPaneSystemUI(
 }
 
 @Composable
+private fun SliderSetting(
+    title: String,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
+    display: (Float) -> String,
+    onCommit: (Float) -> Unit,
+) {
+    var current by remember { mutableFloatStateOf(value) }
+    Column {
+        ListItem(
+            headlineContent = { Text(text = title) },
+            supportingContent = { Text(text = display(current)) },
+        )
+        Slider(
+            value = current,
+            onValueChange = { current = it },
+            onValueChangeFinished = { onCommit(current) },
+            modifier = Modifier.padding(horizontal = 16.dp),
+            valueRange = valueRange,
+            steps = steps,
+        )
+    }
+}
+
+@Composable
 private fun DividerText(@StringRes id: Int) = Text(
     text = stringResource(id),
     modifier = Modifier.padding(start = 16.dp, top = 32.dp, end = 16.dp),
@@ -1033,7 +1172,28 @@ sealed interface SystemUIEvent {
         value class SupportRealTimeNetworkSpeed(val value: Boolean) : StatusBar
 
         @JvmInline
-        value class ShowSeparateUpDownNetworkSpeeds(val value: Boolean) : StatusBar
+        value class ShowNetworkSpeedArrows(val value: Boolean) : StatusBar
+
+        @JvmInline
+        value class SetNetworkSpeedLayout(val value: Int) : StatusBar
+
+        @JvmInline
+        value class SetNetworkSpeedMarker(val value: Int) : StatusBar
+
+        @JvmInline
+        value class SetNetworkSpeedUnit(val value: Int) : StatusBar
+
+        @JvmInline
+        value class NetworkSpeedTextSizeSp(val value: Float) : StatusBar
+
+        @JvmInline
+        value class NetworkSpeedMarkerSizeSp(val value: Float) : StatusBar
+
+        @JvmInline
+        value class NetworkSpeedMarkerGap(val value: Float) : StatusBar
+
+        @JvmInline
+        value class NetworkSpeedLineSpacingDp(val value: Float) : StatusBar
 
         @JvmInline
         value class NetworkSpeedThreshold(val value: Int) : StatusBar
@@ -1332,11 +1492,89 @@ private fun SettingViewModel.onStatusBarEvent(event: SystemUIEvent.StatusBar) {
             }
 
 
-            is SystemUIEvent.StatusBar.ShowSeparateUpDownNetworkSpeeds -> {
+            is SystemUIEvent.StatusBar.SetNetworkSpeedLayout -> {
                 preference.copy(
                     systemUI = preference.systemUI.copy(
                         statusBar = preference.systemUI.statusBar.copy(
-                            showSeparateUpDownNetworkSpeeds = event.value
+                            networkSpeedLayout = NetworkSpeedLayout.coerce(event.value)
+                        )
+                    )
+                )
+            }
+
+            is SystemUIEvent.StatusBar.SetNetworkSpeedMarker -> {
+                preference.copy(
+                    systemUI = preference.systemUI.copy(
+                        statusBar = preference.systemUI.statusBar.copy(
+                            networkSpeedMarker = NetworkSpeedMarker.coerce(event.value)
+                        )
+                    )
+                )
+            }
+
+            is SystemUIEvent.StatusBar.SetNetworkSpeedUnit -> {
+                preference.copy(
+                    systemUI = preference.systemUI.copy(
+                        statusBar = preference.systemUI.statusBar.copy(
+                            networkSpeedUnit = NetworkSpeedUnit.coerce(event.value)
+                        )
+                    )
+                )
+            }
+
+            is SystemUIEvent.StatusBar.NetworkSpeedTextSizeSp -> {
+                preference.copy(
+                    systemUI = preference.systemUI.copy(
+                        statusBar = preference.systemUI.statusBar.copy(
+                            networkSpeedTextSizeSp = event.value.coerceIn(
+                                NETWORK_SPEED_TEXT_SIZE_RANGE
+                            )
+                        )
+                    )
+                )
+            }
+
+            is SystemUIEvent.StatusBar.NetworkSpeedMarkerSizeSp -> {
+                preference.copy(
+                    systemUI = preference.systemUI.copy(
+                        statusBar = preference.systemUI.statusBar.copy(
+                            networkSpeedMarkerSizeSp = event.value.coerceIn(
+                                NETWORK_SPEED_MARKER_SIZE_RANGE
+                            )
+                        )
+                    )
+                )
+            }
+
+            is SystemUIEvent.StatusBar.NetworkSpeedMarkerGap -> {
+                preference.copy(
+                    systemUI = preference.systemUI.copy(
+                        statusBar = preference.systemUI.statusBar.copy(
+                            networkSpeedMarkerGap = event.value.coerceIn(
+                                NETWORK_SPEED_MARKER_GAP_RANGE
+                            )
+                        )
+                    )
+                )
+            }
+
+            is SystemUIEvent.StatusBar.NetworkSpeedLineSpacingDp -> {
+                preference.copy(
+                    systemUI = preference.systemUI.copy(
+                        statusBar = preference.systemUI.statusBar.copy(
+                            networkSpeedLineSpacingDp = event.value.coerceIn(
+                                NETWORK_SPEED_LINE_SPACING_RANGE
+                            )
+                        )
+                    )
+                )
+            }
+
+            is SystemUIEvent.StatusBar.ShowNetworkSpeedArrows -> {
+                preference.copy(
+                    systemUI = preference.systemUI.copy(
+                        statusBar = preference.systemUI.statusBar.copy(
+                            showNetworkSpeedArrows = event.value
                         )
                     )
                 )
@@ -1346,7 +1584,7 @@ private fun SettingViewModel.onStatusBarEvent(event: SystemUIEvent.StatusBar) {
                 preference.copy(
                     systemUI = preference.systemUI.copy(
                         statusBar = preference.systemUI.statusBar.copy(
-                            networkSpeedThresholdKb = event.value
+                            networkSpeedThreshold = event.value
                         )
                     )
                 )

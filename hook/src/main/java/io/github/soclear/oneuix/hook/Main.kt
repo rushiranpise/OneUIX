@@ -2,6 +2,9 @@ package io.github.soclear.oneuix.hook
 
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface
+import io.github.soclear.oneuix.common.NetworkSpeedLayout
+import io.github.soclear.oneuix.common.NetworkSpeedMarker
+import io.github.soclear.oneuix.common.NetworkSpeedUnit
 import io.github.soclear.oneuix.common.Package
 import io.github.soclear.oneuix.hook.systemui.AOD
 import io.github.soclear.oneuix.hook.systemui.ESIM
@@ -262,11 +265,25 @@ class Main : XposedModule() {
                     Network.supportRealTimeNetworkSpeed()
                 }
 
-                if (preference.systemUI.statusBar.showSeparateUpDownNetworkSpeeds) {
-                    Network.showSeparateUpDownNetworkSpeeds(
-                        thresholdKb = preference.systemUI.statusBar.networkSpeedThresholdKb
-                    )
-                }
+                // The system default leaves SystemUI to build and draw the reading, and the module
+                // only adds the markers; the split layouts are drawn by the module itself.
+                val statusBar = preference.systemUI.statusBar
+                Network.networkSpeedIndicator(
+                    threshold = statusBar.networkSpeedThreshold,
+                    systemDefault =
+                        statusBar.networkSpeedLayout == NetworkSpeedLayout.SYSTEM_DEFAULT,
+                    separateLines =
+                        statusBar.networkSpeedLayout == NetworkSpeedLayout.SPLIT_VERTICAL,
+                    compact = statusBar.networkSpeedLayout == NetworkSpeedLayout.ACTIVE_DIRECTION,
+                    arrows = statusBar.showNetworkSpeedArrows,
+                    markerUp = NetworkSpeedMarker.up(statusBar.networkSpeedMarker),
+                    markerDown = NetworkSpeedMarker.down(statusBar.networkSpeedMarker),
+                    unit = NetworkSpeedUnit.of(statusBar.networkSpeedUnit),
+                    textSizeSp = statusBar.networkSpeedTextSizeSp,
+                    markerSizeSp = statusBar.networkSpeedMarkerSizeSp,
+                    markerGap = statusBar.networkSpeedMarkerGap,
+                    lineSpacingDp = statusBar.networkSpeedLineSpacingDp,
+                )
 
                 if (preference.systemUI.statusBar.setStatusBarClockFormat) {
                     val format = preference.systemUI.statusBar.statusBarClockFormat

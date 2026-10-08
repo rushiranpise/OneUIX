@@ -49,7 +49,7 @@
 - 隐藏电池图标
 - 显示电量文字
 - 支持显示实时网速
-- 状态栏显示上传下载网速
+- 状态栏显示上传下载网速：系统样式加箭头、横向或纵向分割、仅显示当前方向，箭头样式、大小、间距可调，可选比特/字节与 1000/1024 进制
 - 设置状态栏日期时间格式
 - 设置状态栏时间大小
 - 状态栏时间每秒更新
@@ -195,7 +195,7 @@
 - Hide battery icon
 - Show battery level text
 - Support displaying real-time network speed
-- Show separate upload/download speeds in status bar
+- Show upload and download speeds in the status bar: the system's own reading with markers added, split horizontally or vertically, or only the direction in use, with a choice of markers, their own size, spacing and line spacing, and speeds written in bits or bytes on a 1000 or 1024 scale
 - Set status bar date and time format
 - Set status bar clock size
 - Update status bar clock every second
