@@ -25,9 +25,10 @@ class Main : XposedModule() {
     }
 
     override fun onPackageReady(param: XposedModuleInterface.PackageReadyParam) = with(param) {
+        if (!isFirstPackage) return@with
         val preference = PreferenceProvider.loadPreference() ?: return@with
 
-        // Answered for every hooked process, since each app that offers a gated feature reads the
+        // Answered wherever a hook goes in, since each app that offers a gated feature reads the
         // table itself. These go in before the per-app hooks, so one of those hooking the same
         // getter still runs on top of the value set here.
         Feature.applyOverrides(preference.featureOverrides)
@@ -430,9 +431,16 @@ class Main : XposedModule() {
                         preference.systemUI.other.powerMenuActions,
                     )
                 }
+
+                if (preference.android.disableFlagSecure) {
+                    DisableFlagSecure.hookSystemUI(classLoader)
+                }
             }
 
             Package.SYSTEMUI if (processName == "${Package.SYSTEMUI}:screenshot") -> {
+                if (preference.android.disableFlagSecure) {
+                    DisableFlagSecure.hookSystemUI(classLoader)
+                }
                 if (preference.systemUI.other.disableScreenshotCaptureSound) {
                     Other.disableScreenshotCaptureSound()
                 }
@@ -528,6 +536,10 @@ class Main : XposedModule() {
         // Lets the Outdoor mode tile write the setting from the app without root.
         if (preference.settings.supportOutdoorMode) {
             Android.allowOutdoorModeWriteFromApp()
+        }
+
+        if (preference.android.disableFlagSecure) {
+            DisableFlagSecure.hookSystemServer(classLoader)
         }
     }
 }
