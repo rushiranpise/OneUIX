@@ -27,6 +27,11 @@ class Main : XposedModule() {
     override fun onPackageReady(param: XposedModuleInterface.PackageReadyParam) = with(param) {
         val preference = PreferenceProvider.loadPreference() ?: return@with
 
+        // Answered for every hooked process, since each app that offers a gated feature reads the
+        // table itself. These go in before the per-app hooks, so one of those hooking the same
+        // getter still runs on top of the value set here.
+        Feature.applyOverrides(preference.featureOverrides)
+
         when (packageName) {
             Package.BROWSER -> {
                 if (preference.other.showMorePlaybackSpeeds) {

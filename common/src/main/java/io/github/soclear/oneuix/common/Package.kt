@@ -1,6 +1,8 @@
 package io.github.soclear.oneuix.common
 
 object Package {
+    /** This module, which the app pane for the feature gates is listed under. */
+    const val SELF = "io.github.soclear.oneuix"
     const val ANDROID = "android"
     const val BROWSER = "com.sec.android.app.sbrowser"
     const val CALENDAR = "com.samsung.android.calendar"

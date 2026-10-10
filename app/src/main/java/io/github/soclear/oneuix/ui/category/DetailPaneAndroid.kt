@@ -226,6 +226,7 @@ fun SettingViewModel.onAndroidEvent(event: AndroidEvent) {
                     )
                 )
             }
+
         }
     }
 }

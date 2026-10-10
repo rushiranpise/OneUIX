@@ -142,6 +142,7 @@
 - 隐藏应用屏幕搜索栏
 - 移除快捷方式图标右下角小角标
 - 最近任务菜单添加强制停止
+- 自定义功能开关（CSC / Floating Feature）
 - 手表连接模式（WearOS CN / WearOS Global）
 - 绕过手表配对区域检查
 - 补充国行 WearOS GMS
@@ -289,6 +290,7 @@
 - Hide search bar on app screen
 - Remove bottom-right shortcut badge
 - Add a Force stop entry to the recents task menu
+- Override Samsung feature gates (CSC features and floating features)
 - Watch connection mode (WearOS CN / WearOS Global)
 - Bypass watch pairing region checks
 - Supplement China WearOS GMS
