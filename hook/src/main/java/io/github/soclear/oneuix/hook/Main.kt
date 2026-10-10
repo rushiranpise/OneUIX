@@ -118,6 +118,10 @@ class Main : XposedModule() {
                     Launcher.hideRecentsCloseAllButton()
                 }
 
+                if (preference.other.forceStopInTaskMenu) {
+                    Launcher.forceStopInTaskMenu()
+                }
+
                 if (preference.other.hideAppsSearchBar) {
                     Launcher.hideAppsSearchBar()
                 }
